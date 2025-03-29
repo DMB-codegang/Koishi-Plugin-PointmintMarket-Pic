@@ -1,7 +1,7 @@
 {
   "name": "koishi-plugin-pointmintmarket-pic",
   "description": "使用积分兑换图片？用这个插件就对了。支持多个api接入，通过pointmarket实现积分兑换。",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [
@@ -27,8 +27,8 @@
     "兑换服务"
   ],
   "devDependencies": {
-    "koishi-plugin-pointmintmarket": "^0.0.1",
-    "koishi-plugin-http": "^0.4.0"
+    "koishi-plugin-pointmintmarket": "^0.0.6",
+    "jsonpath": "^1.0.0"
   },
   "peerDependencies": {
     "koishi": "^4.18.3",

@@ -44,9 +44,9 @@ export const Config: Schema<Config> = Schema.object({
       stock: Schema.number().description('初始库存设置')
     }).description('API配置 - 基础设置'),
     Schema.object({
-      url: Schema.string().description('完整的API请求地址\n示例: `https://api.example.com/data`'),
+      url: Schema.string().role('link').description('完整的API请求地址 示例: `https://api.example.com/data`'),
       method: Schema.union(['GET', 'POST']).default('GET').description('HTTP 请求方法'),
-      response: Schema.string().description('配置解析的JSON路径\n示例: `data.items[0].name`')
+      response: Schema.string().description('配置解析的JSON路径，可通过[🔗*JSONPath Online Evaluator*](https://jsonpath.com/)测试，API会直接返回图片的请将此值配置保持空值')
     }).description('API配置 - API设置')
   ])
   ).description('API配置'),
@@ -55,25 +55,28 @@ export const Config: Schema<Config> = Schema.object({
     .description('是否启用调试日志')
 })
 
-export const name = 'pointmintmarket-example'
-export const description = '积分商城示例插件 - 展示如何使用积分商城API'
-
 declare module 'koishi' {
   interface Context {
     market: MarketService
   }
 }
 
-// 依赖pointmintmarket插件
+
+export const name = 'pointmintmarket-pic'
 export const inject = ['market', 'http']
 
+
 export function apply(ctx: Context, config: Config) {
-  const logger = new Logger('pointmintmarket-example')
+  const logger = new Logger(ctx.name)
 
   // 在插件启动时注册示例商品
   ctx.on('ready', async () => {
+    await ctx.market.unregisterItems(ctx.name)
     await registerExampleItems()
-    logger.info('示例商品已注册')
+  })
+
+  ctx.on('dispose', async () => {
+    await ctx.market.unregisterItems(ctx.name)
   })
 
   // 注册示例商品
@@ -113,7 +116,7 @@ export function apply(ctx: Context, config: Config) {
             }
           }
         }
-        ctx.market.registerItem(api.name, item)
+        ctx.market.registerItem(ctx.name, item)
       }
     } catch (error) {
       logger.error('注册示例商品时出错:', error)
