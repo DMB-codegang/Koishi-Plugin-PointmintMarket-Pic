@@ -8,18 +8,12 @@ export interface Config {
   timeout: number
   /** API配置 */
   apiList: Array<{
-    /** 商品ID */
-    id: string
     /** API对应的商品名称 */
     name: string
     /** 商品详细描述 */
     description: string
-    /** 商品定价 */
-    price: number
     /** 商品展示图URL */
     tags: string[]
-    /** 初始库存设置 */
-    stock: number
     /** API的URL */
     url: string
     /** API的请求方法 */
@@ -36,17 +30,14 @@ export const Config: Schema<Config> = Schema.object({
   apiList: Schema.array(
     Schema.intersect([
     Schema.object({
-      id: Schema.string().description('商品ID'),
-      name: Schema.string().description('此api对应的商品名称'),
-      description: Schema.string().role('textarea', { rows: [2, 2] }).description('商品详细描述'),
-      price: Schema.number().default(10).min(1).description('商品定价'),
-      tags: Schema.array(Schema.string()).description('搜索关键词标签'),
-      stock: Schema.number().description('初始库存设置')
+      name: Schema.string().description('商品名称（唯一）'),
+      description: Schema.string().role('textarea', { rows: [2, 2] }).description('默认商品描述'),
+      tags: Schema.array(Schema.string()).description('默认关键词标签')
     }).description('API配置 - 基础设置'),
     Schema.object({
-      url: Schema.string().role('link').description('完整的API请求地址 示例: `https://api.example.com/data`'),
+      url: Schema.string().role('link').description('完整的API请求地址'),
       method: Schema.union(['GET', 'POST']).default('GET').description('HTTP 请求方法'),
-      response: Schema.string().description('配置解析的JSON路径，可通过[🔗*JSONPath Online Evaluator*](https://jsonpath.com/)测试，API会直接返回图片的请将此值配置保持空值')
+      response: Schema.string().description('配置解析的JSON路径，可通过[🔗*JSONPath Online Evaluator*](https://jsonpath.com/)测试，保持空值将会直接将链接的图片直接发送')
     }).description('API配置 - API设置')
   ])
   ).description('API配置'),
@@ -85,12 +76,9 @@ export function apply(ctx: Context, config: Config) {
       // 注册用户配置的商品
       for (const api of config.apiList) {
         const item: MarketItemRegisterOptions = {
-          id: api.id,
           name: api.name,
           description: api.description,
-          price: api.price,
           tags: api.tags,
-          stock: api.stock,
           // 购买回调函数
           onPurchase: async (session) => {
             try {
